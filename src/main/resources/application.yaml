@@ -1,0 +1,16 @@
+logging:
+  config: classpath:log4j2.xml
+consumer:
+  work-time: 100
+
+jms:
+  activemq:
+    brokerUrl: tcp://localhost:61616
+    user: user
+    password: user
+    concurrentConsumers: 10
+    redeliveryCount: 5
+    redeliveryDelayMs: 20000
+    queues:
+      input-output-endpoint:  "inputToOutputQueue"
+      output-endpoint:        "outputQueue"
