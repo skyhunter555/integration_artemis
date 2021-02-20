@@ -18,6 +18,7 @@ import org.springframework.integration.jms.dsl.Jms;
 import org.springframework.integration.scheduling.PollerMetadata;
 import org.springframework.integration.transaction.TransactionInterceptorBuilder;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
+import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.connection.JmsTransactionManager;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.stereotype.Service;
@@ -65,13 +66,17 @@ public class JmsConfig {
     private Integer redeliveryDelayMs;
 
     @Bean
-    public ActiveMQConnectionFactory connectionFactory() throws JMSException {
+    public CachingConnectionFactory connectionFactory() throws JMSException {
         ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
         connectionFactory.setBrokerURL(brokerConnector);
         connectionFactory.setUser(brokerUser);
         connectionFactory.setPassword(brokerPass);
-        connectionFactory.setRetryInterval(5000);
-        return connectionFactory;
+        connectionFactory.setRetryInterval(1000);
+        //connectionFactory.setMaxThreadPoolSize(10);
+        CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory(connectionFactory);
+        cachingConnectionFactory.setCacheConsumers(false);
+        cachingConnectionFactory.setSessionCacheSize(20);
+        return cachingConnectionFactory;
     }
 
     @Bean
@@ -101,14 +106,14 @@ public class JmsConfig {
         return MessageChannels.queue(queueOutputEndpoint).get();
     }
 
-    @Bean
-    public JmsOutboundGateway jmsOutboundGateway(ConnectionFactory connectionFactory) {
-        JmsOutboundGateway jmsOutboundGateway = new JmsOutboundGateway();
-        jmsOutboundGateway.setConnectionFactory(connectionFactory);
-        jmsOutboundGateway.setRequestDestinationName(queueOutputEndpoint);
-        jmsOutboundGateway.setReplyChannel(outputMessageChannel());
-        return jmsOutboundGateway;
-    }
+    //@Bean
+    //public JmsOutboundGateway jmsOutboundGateway(ConnectionFactory connectionFactory) {
+    //    JmsOutboundGateway jmsOutboundGateway = new JmsOutboundGateway();
+    //    jmsOutboundGateway.setConnectionFactory(connectionFactory);
+    //    jmsOutboundGateway.setRequestDestinationName(queueOutputEndpoint);
+    //    jmsOutboundGateway.setReplyChannel(outputMessageChannel());
+    //    return jmsOutboundGateway;
+    //}
 
     @Service
     public class ExampleErrorHandler implements ErrorHandler {
@@ -125,7 +130,7 @@ public class JmsConfig {
         factory.setSessionAcknowledgeMode(Session.CLIENT_ACKNOWLEDGE);
         factory.setClientId(queueInputOutputEndpoint);
         factory.setConnectionFactory(connectionFactory);
-        factory.setConcurrency("20-20");
+        factory.setConcurrency("500-500");
         factory.setRecoveryInterval(10000L);
         factory.setSessionTransacted(true);
         factory.setTransactionManager(jmsTransactionManager(connectionFactory));
@@ -133,15 +138,15 @@ public class JmsConfig {
         return factory;
     }
 
-    @Bean
-    public IntegrationFlow myFlowInputToOutput(ConnectionFactory connectionFactory) {
-        return IntegrationFlows.from(
-                Jms.messageDrivenChannelAdapter(connectionFactory)
-                        .destination(queueInputOutputEndpoint)
-            )
-            .handle(jmsOutboundGateway(connectionFactory))
-            .get();
-    }
+    //@Bean
+    //public IntegrationFlow myFlowInputToOutput(ConnectionFactory connectionFactory) {
+    //    return IntegrationFlows.from(
+    //            Jms.messageDrivenChannelAdapter(connectionFactory)
+    //                    .destination(queueInputOutputEndpoint)
+    //        )
+    //        .handle(jmsOutboundGateway(connectionFactory))
+    //        .get();
+    //}
 
 }
 

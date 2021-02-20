@@ -1,5 +1,6 @@
 package ru.syntez.integration.artemis.components;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,6 +15,7 @@ import ru.syntez.integration.artemis.entities.RoutingDocument;
 import ru.syntez.integration.artemis.exceptions.RouterException;
 import javax.jms.JMSException;
 import javax.jms.Message;
+import java.util.Date;
 
 /**
  * Configuration custom InputMessageConsumer
@@ -35,21 +37,29 @@ public class InputMessageConsumer {
     private final ObjectMapper xmlMapper;
     public InputMessageConsumer(ObjectMapper xmlMapper) {
         this.xmlMapper = xmlMapper;
+        xmlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     private Integer consumedDocumentCount = 0;
+    private Date startTime = new Date();
 
     @JmsListener(destination = "${jms.activemq.queues.input-output-endpoint}", containerFactory = "jmsListenerContainerFactory")
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = RouterException.class)
     public void receive(Message message) throws JMSException {
-        LOG.info("Received message: " + message);
+
+      //  LOG.info("Received message: " + message);
         final String xmlPayload = message.getBody(String.class);
         try {
             RoutingDocument document = xmlMapper.readValue(xmlPayload, RoutingDocument.class);
-            LOG.info("START CONSUME MESSAGE, docId: {} docType: {}", document.getDocId(), document.getDocType());
+            Date totalTime = new Date();
+            long seconds =  (totalTime.getTime() - startTime.getTime()) / 1000;
+            consumedDocumentCount++;
+          //  outputJmsTemplate.convertAndSend("outputQueue", message);
+            LOG.info("CONSUMED MESSAGE, docId: {} docType: {}. Total consumed: {} seconds {}", document.getDocId(), document.getDocType(), consumedDocumentCount, seconds);
         } catch (Exception e) {
             LOG.error(String.format("Error send files %s", e.getMessage()));
         }
+        /*
         if (consumedDocumentCount >= 10) {
             //Сброс счетчика, для повторной отправки
             consumedDocumentCount = 0;
@@ -61,9 +71,8 @@ public class InputMessageConsumer {
             consumedDocumentCount++;
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
-        LOG.info("FINISH CONSUME MESSAGE. Total consumed: {}", consumedDocumentCount);
-        outputJmsTemplate.convertAndSend(message);
+        }*/
+       // LOG.info("CONSUMED MESSAGE. Total consumed: {}", consumedDocumentCount);
 
     }
 }
