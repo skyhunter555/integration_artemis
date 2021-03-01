@@ -106,15 +106,6 @@ public class JmsConfig {
         return MessageChannels.queue(queueOutputEndpoint).get();
     }
 
-    //@Bean
-    //public JmsOutboundGateway jmsOutboundGateway(ConnectionFactory connectionFactory) {
-    //    JmsOutboundGateway jmsOutboundGateway = new JmsOutboundGateway();
-    //    jmsOutboundGateway.setConnectionFactory(connectionFactory);
-    //    jmsOutboundGateway.setRequestDestinationName(queueOutputEndpoint);
-    //    jmsOutboundGateway.setReplyChannel(outputMessageChannel());
-    //    return jmsOutboundGateway;
-    //}
-
     @Service
     public class ExampleErrorHandler implements ErrorHandler {
         @Override
@@ -122,6 +113,11 @@ public class JmsConfig {
             //handle exception here
             LOG.info("Error {}", t.getMessage());
         }
+    }
+
+    @Bean
+    MessageChannel errorChannel() {
+        return MessageChannels.direct("errorChannel").get();
     }
 
     @Bean
