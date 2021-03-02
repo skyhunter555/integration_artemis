@@ -20,7 +20,7 @@
     </Appenders>
     <Loggers>
         <Root level="debug" additivity="false">
-            <appender-ref ref="console" level="info" />
+            <appender-ref ref="fileLogger" level="info" />
         </Root>
     </Loggers>
 </Configuration>
