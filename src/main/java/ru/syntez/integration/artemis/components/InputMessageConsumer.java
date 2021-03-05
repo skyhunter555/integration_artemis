@@ -13,8 +13,12 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.syntez.integration.artemis.entities.RoutingDocument;
 import ru.syntez.integration.artemis.exceptions.RouterException;
+
+import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.TextMessage;
+import java.net.ConnectException;
 import java.util.Date;
 
 /**
@@ -47,8 +51,17 @@ public class InputMessageConsumer {
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = RouterException.class)
     public void receive(Message message) throws JMSException {
 
+        final String xmlPayload;
+
+        if (message instanceof TextMessage) {
+           // LOG.debug("Text message with no schema");
+            xmlPayload = ((TextMessage) message).getText();
+        } else {
+            LOG.error("Unsupported JMS message type {}", message.getClass());
+            throw new JMSException("Unsupported JMS message type");
+        }
+
       //  LOG.info("Received message: " + message);
-        final String xmlPayload = message.getBody(String.class);
         try {
             RoutingDocument document = xmlMapper.readValue(xmlPayload, RoutingDocument.class);
             Date totalTime = new Date();

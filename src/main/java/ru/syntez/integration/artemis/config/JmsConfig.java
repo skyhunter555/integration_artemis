@@ -3,6 +3,7 @@ package ru.syntez.integration.artemis.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import org.apache.activemq.ActiveMQSslConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -66,12 +67,20 @@ public class JmsConfig {
     private Integer redeliveryDelayMs;
 
     @Bean
-    public CachingConnectionFactory connectionFactory() throws JMSException {
-        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
-        connectionFactory.setBrokerURL(brokerConnector);
-        connectionFactory.setUser(brokerUser);
+    public CachingConnectionFactory connectionFactory() throws Exception {
+        //ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
+        ActiveMQSslConnectionFactory connectionFactory = new ActiveMQSslConnectionFactory(brokerConnector);
+        //System.setProperty("javax.net.ssl.trustStore","C:\\Users\\skyhunter\\client_ts.p12");
+        //System.setProperty("javax.net.ssl.trustStorePassword","user555");
+        connectionFactory.setTrustStore("C:/Users/skyhunter/client_ts.p12");
+        connectionFactory.setTrustStorePassword("user555");
+        //connectionFactory.setKeyStore("C:/Users/skyhunter/serverStore.p12");
+        //connectionFactory.setKeyStorePassword("user555");
+
+        //connectionFactory.setBrokerURL(brokerConnector);
+        connectionFactory.setUserName(brokerUser);
         connectionFactory.setPassword(brokerPass);
-        connectionFactory.setRetryInterval(1000);
+        //connectionFactory.setRetryInterval(1000);
         //connectionFactory.setMaxThreadPoolSize(10);
         CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory(connectionFactory);
         cachingConnectionFactory.setCacheConsumers(false);

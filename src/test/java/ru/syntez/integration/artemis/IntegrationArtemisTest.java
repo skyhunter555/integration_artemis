@@ -1,45 +1,55 @@
 package ru.syntez.integration.artemis;
 
+import org.apache.activemq.ActiveMQSslConnectionFactory;
+import org.apache.activemq.artemis.core.protocol.core.Channel;
 import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.jms.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@Ignore
+//@Ignore
 public class IntegrationArtemisTest {
 
-    /*
+    @Value("${jms.activemq.queues.input-output-endpoint}")
+    private String queueInputOutputEndpoint = "inputToOutputQueue";
+
     @Configuration
     public static class Config {
 
-        @Value("${camel.component.rabbitmq.host}")
-        private String brokerHost = "localhost";
+        @Value("${jms.activemq.brokerUrl}")
+        private String brokerConnector = "tcp://localhost:61616";
 
-        @Value("${camel.component.rabbitmq.port}")
-        private Integer brokerPort = 5672;
+        @Value("${jms.activemq.user}")
+        private String brokerUser = "user";
 
-        @Value("${camel.component.rabbitmq.username}")
-        private String username = "user";
-
-        @Value("${camel.component.rabbitmq.password}")
-        private String password = "user";
+        @Value("${jms.activemq.password}")
+        private String brokerPass = "user";
 
         @Bean
-        public ConnectionFactory connectionFactory() {
-            ConnectionFactory connectionFactory = new ConnectionFactory();
-            connectionFactory.setHost("localhost");
-            connectionFactory.setPort(brokerPort);
-            connectionFactory.setUsername(username);
-            connectionFactory.setPassword(password);
-            connectionFactory.setVirtualHost(username);
-            connectionFactory.setRequestedChannelMax(1);
-            return connectionFactory;
+        public CachingConnectionFactory connectionFactory() throws Exception {
+            ActiveMQSslConnectionFactory connectionFactory = new ActiveMQSslConnectionFactory(brokerConnector);
+            connectionFactory.setTrustStore("C:/Users/skyhunter/client_ts.p12");
+            connectionFactory.setTrustStorePassword("user555");
+            connectionFactory.setUserName(brokerUser);
+            connectionFactory.setPassword(brokerPass);
+            CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory(connectionFactory);
+            cachingConnectionFactory.setCacheConsumers(false);
+            cachingConnectionFactory.setSessionCacheSize(20);
+            return cachingConnectionFactory;
         }
     }
-
-    private String queueInputEndpoint = "inputqueue";
 
     @Autowired
     ConnectionFactory connectionFactory;
@@ -48,26 +58,20 @@ public class IntegrationArtemisTest {
     public void sendMessageToInputQueueTest() {
 
 
-        ConfigurableApplicationContext context = SpringApplication.run(IntegrationRabbitMain.class, args);
-        RabbitTemplate rabbitTemplate = context.getBean(RabbitTemplate.class);
         try {
-            List<File> xmlFileList = Arrays.asList(
-                ResourceUtils.getFile(IntegrationRabbitMain.class.getResource("/xmls/router_doc_1.xml"))
-            );
-            long startTime = System.currentTimeMillis();
-            LOG.info("Starting send: " + startTime);
-            for (int i = 0; i < 100; i++) {
-                xmlFileList.forEach(xmlFile ->
-                    rabbitTemplate.convertAndSend("inputqueue", xmlFile)
-                );
+            String messageXml = new String(Files.readAllBytes(Paths.get(getClass().getResource("/router_doc_1.xml").toURI())));
+            Connection connection = connectionFactory.createConnection();
+            connection.start();
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            MessageProducer msgProducer = session.createProducer(session.createQueue(queueInputOutputEndpoint));
+            for (int i = 0; i < 10; i++) {
+                TextMessage textMessage = session.createTextMessage(messageXml);
+                msgProducer.send(textMessage);
             }
-            long finishTime = System.currentTimeMillis();
-            LOG.info("Send all: " + finishTime);
-            LOG.info("Total time: " + (finishTime - startTime) + " ms.");
         } catch (Exception e) {
-            LOG.error(String.format("Error send files %s", e.getMessage()));
+            e.printStackTrace();
         }
 
-    }*/
+    }
 
 }

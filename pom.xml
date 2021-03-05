@@ -54,6 +54,11 @@
             <artifactId>spring-integration-jms</artifactId>
             <version>5.3.5.RELEASE</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-client</artifactId>
+            <version>5.9.1</version>
+        </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
