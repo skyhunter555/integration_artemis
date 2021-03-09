@@ -5,7 +5,7 @@ consumer:
 
 jms:
   activemq:
-    brokerUrl: ssl://localhost:61616
+    brokerUrl: ssl://localhost:61617
     user: user
     password: user
     concurrentConsumers: 10

@@ -40,8 +40,10 @@ public class IntegrationArtemisTest {
         @Bean
         public CachingConnectionFactory connectionFactory() throws Exception {
             ActiveMQSslConnectionFactory connectionFactory = new ActiveMQSslConnectionFactory(brokerConnector);
-            connectionFactory.setTrustStore("C:/Users/skyhunter/client_ts.p12");
-            connectionFactory.setTrustStorePassword("user555");
+            connectionFactory.setTrustStore("C:/Users/skyhunter/client-truststore.jks");
+            connectionFactory.setTrustStorePassword("wso2carbon");
+            connectionFactory.setKeyStore("C:/Users/skyhunter/wso2carbon.jks");
+            connectionFactory.setKeyStorePassword("wso2carbon");
             connectionFactory.setUserName(brokerUser);
             connectionFactory.setPassword(brokerPass);
             CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory(connectionFactory);
@@ -64,7 +66,7 @@ public class IntegrationArtemisTest {
             connection.start();
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageProducer msgProducer = session.createProducer(session.createQueue(queueInputOutputEndpoint));
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 100; i++) {
                 TextMessage textMessage = session.createTextMessage(messageXml);
                 msgProducer.send(textMessage);
             }

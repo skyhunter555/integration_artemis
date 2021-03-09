@@ -72,10 +72,10 @@ public class JmsConfig {
         ActiveMQSslConnectionFactory connectionFactory = new ActiveMQSslConnectionFactory(brokerConnector);
         //System.setProperty("javax.net.ssl.trustStore","C:\\Users\\skyhunter\\client_ts.p12");
         //System.setProperty("javax.net.ssl.trustStorePassword","user555");
-        connectionFactory.setTrustStore("C:/Users/skyhunter/client_ts.p12");
-        connectionFactory.setTrustStorePassword("user555");
-        //connectionFactory.setKeyStore("C:/Users/skyhunter/serverStore.p12");
-        //connectionFactory.setKeyStorePassword("user555");
+        connectionFactory.setTrustStore("C:/Users/skyhunter/client-truststore.jks");
+        connectionFactory.setTrustStorePassword("wso2carbon");
+        connectionFactory.setKeyStore("C:/Users/skyhunter/wso2carbon.jks");
+        connectionFactory.setKeyStorePassword("wso2carbon");
 
         //connectionFactory.setBrokerURL(brokerConnector);
         connectionFactory.setUserName(brokerUser);
