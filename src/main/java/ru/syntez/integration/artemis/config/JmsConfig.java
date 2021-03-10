@@ -4,18 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.apache.activemq.ActiveMQSslConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.integration.dsl.IntegrationFlow;
-import org.springframework.integration.dsl.IntegrationFlows;
 import org.springframework.integration.dsl.MessageChannels;
 import org.springframework.integration.dsl.Pollers;
-import org.springframework.integration.jms.JmsOutboundGateway;
-import org.springframework.integration.jms.dsl.Jms;
 import org.springframework.integration.scheduling.PollerMetadata;
 import org.springframework.integration.transaction.TransactionInterceptorBuilder;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
@@ -27,7 +22,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.util.ErrorHandler;
 import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
 import javax.jms.Session;
 
 /**
@@ -68,20 +62,13 @@ public class JmsConfig {
 
     @Bean
     public CachingConnectionFactory connectionFactory() throws Exception {
-        //ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory();
         ActiveMQSslConnectionFactory connectionFactory = new ActiveMQSslConnectionFactory(brokerConnector);
-        //System.setProperty("javax.net.ssl.trustStore","C:\\Users\\skyhunter\\client_ts.p12");
-        //System.setProperty("javax.net.ssl.trustStorePassword","user555");
-        connectionFactory.setTrustStore("C:/Users/skyhunter/client-truststore.jks");
-        connectionFactory.setTrustStorePassword("wso2carbon");
-        connectionFactory.setKeyStore("C:/Users/skyhunter/wso2carbon.jks");
-        connectionFactory.setKeyStorePassword("wso2carbon");
-
-        //connectionFactory.setBrokerURL(brokerConnector);
+        connectionFactory.setTrustStore("C:/Users/skyhunter/client_consumer_ts.p12");
+        connectionFactory.setTrustStorePassword("user555");
+        connectionFactory.setKeyStore("C:/Users/skyhunter/client_consumer_ks.p12");
+        connectionFactory.setKeyStorePassword("user555");
         connectionFactory.setUserName(brokerUser);
         connectionFactory.setPassword(brokerPass);
-        //connectionFactory.setRetryInterval(1000);
-        //connectionFactory.setMaxThreadPoolSize(10);
         CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory(connectionFactory);
         cachingConnectionFactory.setCacheConsumers(false);
         cachingConnectionFactory.setSessionCacheSize(20);
@@ -142,16 +129,6 @@ public class JmsConfig {
         factory.setErrorHandler(errorHandler);
         return factory;
     }
-
-    //@Bean
-    //public IntegrationFlow myFlowInputToOutput(ConnectionFactory connectionFactory) {
-    //    return IntegrationFlows.from(
-    //            Jms.messageDrivenChannelAdapter(connectionFactory)
-    //                    .destination(queueInputOutputEndpoint)
-    //        )
-    //        .handle(jmsOutboundGateway(connectionFactory))
-    //        .get();
-    //}
 
 }
 

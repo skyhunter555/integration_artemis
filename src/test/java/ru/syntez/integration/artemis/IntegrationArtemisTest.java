@@ -40,10 +40,10 @@ public class IntegrationArtemisTest {
         @Bean
         public CachingConnectionFactory connectionFactory() throws Exception {
             ActiveMQSslConnectionFactory connectionFactory = new ActiveMQSslConnectionFactory(brokerConnector);
-            connectionFactory.setTrustStore("C:/Users/skyhunter/client-truststore.jks");
-            connectionFactory.setTrustStorePassword("wso2carbon");
-            connectionFactory.setKeyStore("C:/Users/skyhunter/wso2carbon.jks");
-            connectionFactory.setKeyStorePassword("wso2carbon");
+            connectionFactory.setTrustStore("C:/Users/skyhunter/client_sender_ts.p12");
+            connectionFactory.setTrustStorePassword("user555");
+            connectionFactory.setKeyStore("C:/Users/skyhunter/client_sender_ks.p12");
+            connectionFactory.setKeyStorePassword("user555");
             connectionFactory.setUserName(brokerUser);
             connectionFactory.setPassword(brokerPass);
             CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory(connectionFactory);
@@ -58,7 +58,6 @@ public class IntegrationArtemisTest {
 
     @Test
     public void sendMessageToInputQueueTest() {
-
 
         try {
             String messageXml = new String(Files.readAllBytes(Paths.get(getClass().getResource("/router_doc_1.xml").toURI())));
