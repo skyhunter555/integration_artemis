@@ -65,7 +65,7 @@ public class IntegrationArtemisTest {
             connection.start();
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageProducer msgProducer = session.createProducer(session.createQueue(queueInputOutputEndpoint));
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 200; i++) {
                 TextMessage textMessage = session.createTextMessage(messageXml);
                 msgProducer.send(textMessage);
             }
