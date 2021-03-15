@@ -47,7 +47,7 @@ public class InputMessageConsumer {
     private Integer consumedDocumentCount = 0;
     private Date startTime = new Date();
 
-    @JmsListener(destination = "${jms.activemq.queues.input-output-endpoint}", containerFactory = "jmsListenerContainerFactory")
+    @JmsListener(destination = "${jms.activemq.queues.input-output-endpoint}")
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = RouterException.class)
     public void receive(Message message) throws JMSException {
 

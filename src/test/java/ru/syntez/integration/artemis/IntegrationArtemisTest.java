@@ -1,7 +1,6 @@
 package ru.syntez.integration.artemis;
 
 import org.apache.activemq.ActiveMQSslConnectionFactory;
-import org.apache.activemq.artemis.core.protocol.core.Channel;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +30,15 @@ public class IntegrationArtemisTest {
         @Value("${jms.activemq.brokerUrl}")
         private String brokerConnector = "tcp://localhost:61616";
 
+        @Value("${server.ssl.client-store-password}")
+        private String sslClientStorePass = "user555";
+
+        @Value("${server.ssl.client-sender-trusted-store-path}")
+        private String sslClientTrustedStorePath = "C:/Users/skyhunter/client_sender_ts.p12";
+
+        @Value("${server.ssl.client-sender-key-store-path}")
+        private String sslClientKeyStorePath = "C:/Users/skyhunter/client_sender_ks.p12";
+
         @Value("${jms.activemq.user}")
         private String brokerUser = "user";
 
@@ -40,10 +48,10 @@ public class IntegrationArtemisTest {
         @Bean
         public CachingConnectionFactory connectionFactory() throws Exception {
             ActiveMQSslConnectionFactory connectionFactory = new ActiveMQSslConnectionFactory(brokerConnector);
-            connectionFactory.setTrustStore("C:/Users/skyhunter/client_sender_ts.p12");
-            connectionFactory.setTrustStorePassword("user555");
-            connectionFactory.setKeyStore("C:/Users/skyhunter/client_sender_ks.p12");
-            connectionFactory.setKeyStorePassword("user555");
+            connectionFactory.setTrustStore(sslClientTrustedStorePath);
+            connectionFactory.setTrustStorePassword(sslClientStorePass);
+            connectionFactory.setKeyStore(sslClientKeyStorePath);
+            connectionFactory.setKeyStorePassword(sslClientStorePass);
             connectionFactory.setUserName(brokerUser);
             connectionFactory.setPassword(brokerPass);
             CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory(connectionFactory);
