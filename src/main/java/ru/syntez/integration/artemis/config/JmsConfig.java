@@ -1,33 +1,32 @@
 package ru.syntez.integration.artemis.config;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import org.apache.activemq.ActiveMQSslConnectionFactory;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.connection.CachingConnectionFactory;
-import org.springframework.jms.connection.JmsTransactionManager;
-import org.springframework.transaction.PlatformTransactionManager;
 import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import javax.jms.Queue;
+import javax.jms.Session;
+
+import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.TYPE.QUEUE;
+import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.createDestination;
 
 /**
  * Configuration for spring integration jms
  * 1. Create ConnectionFactory
  * 2. Create queue
- * 4. Create IntegrationFlow to routing documents
- * 5. TransactionManager
  *
  * @author Skyhunter
- * @date 04.02.2021
+ * @date 22.03.2021
  */
 @Configuration
 public class JmsConfig {
-
-    private static Logger LOG = LogManager.getLogger(JmsConfig.class);
 
     @Value("${jms.activemq.brokerUrl}")
     private String brokerConnector = "tcp://localhost:61616";
@@ -38,35 +37,22 @@ public class JmsConfig {
     @Value("${jms.activemq.password}")
     private String brokerPass = "user";
 
-    @Value("${jms.activemq.queues.input-output-endpoint}")
-    private String queueInputOutputEndpoint = "inputToOutputQueue";
-
     @Value("${jms.activemq.queues.output-endpoint}")
     private String queueOutputEndpoint = "outputQueue";
 
-    @Value("${jms.activemq.redeliveryCount}")
-    private Integer redeliveryCount;
-
-    @Value("${jms.activemq.redeliveryDelayMs}")
-    private Integer redeliveryDelayMs;
-
-    @Value("${jms.ssl.client-store-password}")
-    private String sslClientStorePass = "user555";
-
-    @Value("${jms.ssl.client-consumer-trusted-store-path}")
-    private String sslClientTrustedStorePath = "C:/Users/skyhunter/client_consumer_ts.p12";
-
-    @Value("${jms.ssl.client-consumer-key-store-path}")
-    private String sslClientKeyStorePath = "C:/Users/skyhunter/client_consumer_ks.p12";
+    @Bean
+    public ObjectMapper xmlMapper() {
+        JacksonXmlModule xmlModule = new JacksonXmlModule();
+        xmlModule.setDefaultUseWrapper(false);
+        ObjectMapper xmlMapper = new XmlMapper(xmlModule);
+        xmlMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        return new XmlMapper(xmlModule);
+    }
 
     @Bean
-    public CachingConnectionFactory connectionFactory() throws Exception {
-        ActiveMQSslConnectionFactory connectionFactory = new ActiveMQSslConnectionFactory(brokerConnector);
-        connectionFactory.setTrustStore(sslClientTrustedStorePath);
-        connectionFactory.setTrustStorePassword(sslClientStorePass);
-        connectionFactory.setKeyStore(sslClientKeyStorePath);
-        connectionFactory.setKeyStorePassword(sslClientStorePass);
-        connectionFactory.setUserName(brokerUser);
+    public CachingConnectionFactory connectionFactory() {
+        ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(brokerConnector);
+        connectionFactory.setUser(brokerUser);
         connectionFactory.setPassword(brokerPass);
         CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory(connectionFactory);
         cachingConnectionFactory.setCacheConsumers(false);
@@ -75,15 +61,13 @@ public class JmsConfig {
     }
 
     @Bean
-    public ObjectMapper xmlMapper() {
-        JacksonXmlModule xmlModule = new JacksonXmlModule();
-        xmlModule.setDefaultUseWrapper(false);
-        return new XmlMapper(xmlModule);
+    public Queue destinationQueue() {
+        return (Queue) createDestination(queueOutputEndpoint, QUEUE);
     }
 
     @Bean
-    public PlatformTransactionManager jmsTransactionManager(ConnectionFactory connectionFactory) {
-        return new JmsTransactionManager(connectionFactory);
+    public Session jmsSession(ConnectionFactory connectionFactory) throws JMSException {
+        return connectionFactory.createConnection().createSession();
     }
 
 }

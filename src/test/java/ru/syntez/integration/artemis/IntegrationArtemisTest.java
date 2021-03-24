@@ -1,6 +1,6 @@
 package ru.syntez.integration.artemis;
 
-import org.apache.activemq.ActiveMQSslConnectionFactory;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,15 +30,6 @@ public class IntegrationArtemisTest {
         @Value("${jms.activemq.brokerUrl}")
         private String brokerConnector = "tcp://localhost:61616";
 
-        @Value("${server.ssl.client-store-password}")
-        private String sslClientStorePass = "user555";
-
-        @Value("${server.ssl.client-sender-trusted-store-path}")
-        private String sslClientTrustedStorePath = "C:/Users/skyhunter/client_sender_ts.p12";
-
-        @Value("${server.ssl.client-sender-key-store-path}")
-        private String sslClientKeyStorePath = "C:/Users/skyhunter/client_sender_ks.p12";
-
         @Value("${jms.activemq.user}")
         private String brokerUser = "user";
 
@@ -47,12 +38,8 @@ public class IntegrationArtemisTest {
 
         @Bean
         public CachingConnectionFactory connectionFactory() throws Exception {
-            ActiveMQSslConnectionFactory connectionFactory = new ActiveMQSslConnectionFactory(brokerConnector);
-            connectionFactory.setTrustStore(sslClientTrustedStorePath);
-            connectionFactory.setTrustStorePassword(sslClientStorePass);
-            connectionFactory.setKeyStore(sslClientKeyStorePath);
-            connectionFactory.setKeyStorePassword(sslClientStorePass);
-            connectionFactory.setUserName(brokerUser);
+            ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(brokerConnector);
+            connectionFactory.setUser(brokerUser);
             connectionFactory.setPassword(brokerPass);
             CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory(connectionFactory);
             cachingConnectionFactory.setCacheConsumers(false);
@@ -68,12 +55,12 @@ public class IntegrationArtemisTest {
     public void sendMessageToInputQueueTest() {
 
         try {
-            String messageXml = new String(Files.readAllBytes(Paths.get(getClass().getResource("/router_doc_1.xml").toURI())));
+            String messageXml = new String(Files.readAllBytes(Paths.get(getClass().getResource("/TestAccountInput.xml").toURI())));
             Connection connection = connectionFactory.createConnection();
             connection.start();
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageProducer msgProducer = session.createProducer(session.createQueue(queueInputOutputEndpoint));
-            for (int i = 0; i < 200; i++) {
+            for (int i = 0; i < 10; i++) {
                 TextMessage textMessage = session.createTextMessage(messageXml);
                 msgProducer.send(textMessage);
             }

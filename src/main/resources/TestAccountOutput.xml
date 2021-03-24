@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CIT_REQUEST_OUT>
+  <SYSTEM>
+    <BP_ID>001</BP_ID>
+    <CIT_Version>002</CIT_Version>
+    <ERROR></ERROR>
+    <FORMAT>XML</FORMAT>
+    <MSG_ID>003</MSG_ID>
+    <SYNC>004</SYNC>
+    <SYS_ID>005</SYS_ID>
+    <TAR_ID>006</TAR_ID>
+    <Version>007</Version>
+  </SYSTEM>
+  <DATA>
+    <DogNum>123</DogNum>
+    <DogNewStatus>CLOSE</DogNewStatus>
+    <DogNewDate>2021-03-23</DogNewDate>
+    <Channel>CHANNEL</Channel>
+    <Depart></Depart>
+  </DATA>
+</CIT_REQUEST_OUT>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CIT_REQUEST_INPUT>
+  <SYSTEM>
+    <BP_ID Value="BP_001" />
+    <CIT_Version Value="002" />
+    <ERR />
+    <FORMAT Value="XML" />
+    <MSG_ID Value="003" />
+    <SYNC Value="004" />
+    <SYS_ID Value="005" />
+    <TAR_ID Value="006" />
+    <Version Value="007" />
+  </SYSTEM>
+  <DATA>
+    <DogNum Value="123" />
+    <DogNewStatus Value="OPEN" />
+    <DogNewDate Value="2021-03-23" />
+    <Channel Value="CHANNEL" />
+    <Depart />
+  </DATA>
+</CIT_REQUEST_INPUT>
