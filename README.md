@@ -1,38 +1,18 @@
 # Service for testing Spring Integration with ActiveMQ Artemis 
 Library name: integration-artemis
 
-  В примере создается одна входящая очередь inputToOutputQueue и исходящая очередь outputQueue.</br>
-Опционально между очередями настроен маршрутизатор который отправляет сообщение из входящей очереди в исходящую.</br>
-Для проверки транзакционного режима, создан компонент слушатель на входящую очередь.</br>
-
-Для работы в безопасном режиме с шифрованием SSL, были созданы самоподписанные сертификаты и настроена конфигурация</br>
-в брокере и клиенте. Так же добавлен сертификат и настройки для использования web-консоли через SSL.</br>
-Настройка конфигурации брокера находится в папке artemis-tls-config: broker.xml.</br>
-Для подключения режима ssl необходимо скопировать сертификаты из security в указанную в конфиге папку.</br>  
-
-Для генерации самоподписанных сертификатов необходимо запустить</br>
-security\artemis_create_server1_create_ssl.bat
- 
-
-После обработки сообщений в логе выводиться информация:</br>
-[INFO ] 2021-03-02 12:04:13.342 [DefaultMessageListenerContainer-490] InputMessageConsumer - CONSUMED MESSAGE, docId: 1 docType: order. Total consumed: 1 seconds 39
-
-Ссылки на использованную документацию:</br>
-https://activemq.apache.org/components/artemis/documentation/1.0.0/spring-integration.html</br>
-https://docs.spring.io/spring-boot/docs/2.0.x/reference/html/boot-features-messaging.html
-
 ## Example
 java -jar integration-artemis-1.0.0.jar
 
 ## Build
 mvn clean install
 
-errors
-
 OS name: "linux", version: "4.18.0-240.15.1.el8_3.x86_64", arch: "amd64"
 mvn -version
 Apache Maven 3.6.3 (cecedd343002696d0abb50b32b541b8a6ba2883f)
 Maven home: /opt/maven/apache-maven-3.6.3
+
+stack trace:
 
 Error: Error compiling query code (in /tmp/SVM-5364068367304974146/JNIHeaderDirectives.c). Compiler command '/usr/bin/gcc -Wall -Werror -I/home/skyhunter/.sdkman/candidates/java/21.0.0.r8-grl/include -I/home/skyhunter/.sdkman/candidates/java/21.0.0.r8-grl/include/linux -o /tmp/SVM-5364068367304974146/JNIHeaderDirectives /tmp/SVM-5364068367304974146/JNIHeaderDirectives.c ' output included error: /tmp/SVM-5364068367304974146/JNIHeaderDirectives.c:9:5: error: implicit declaration of function ‘printf’ [-Werror=implicit-function-declaration]
     C file contents around line 9:
