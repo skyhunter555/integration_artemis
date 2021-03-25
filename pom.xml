@@ -16,6 +16,7 @@
         <mapstruct.version>1.4.1.Final</mapstruct.version>
         <jackson.version>2.11.1</jackson.version>
         <maven.version>3.8.1</maven.version>
+        <start-class>ru.syntez.integration.artemis.IntegrationArtemisMain</start-class>     
     </properties>
 
     <developers>
