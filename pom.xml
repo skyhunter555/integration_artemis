@@ -32,7 +32,7 @@
     </parent>
 
     <dependencies>
-        <!--dependency>
+        <dependency>
             <groupId>org.springframework.experimental</groupId>
             <artifactId>spring-graal-native</artifactId>
             <version>0.6.0.RELEASE</version>
@@ -40,7 +40,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-indexer</artifactId>
-        </dependency-->
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -122,11 +122,9 @@
                     <plugin>
                         <groupId>org.graalvm.nativeimage</groupId>
                         <artifactId>native-image-maven-plugin</artifactId>
-                        <version>20.1.0</version>
+                        <version>21.0.0.2</version>
                         <configuration>
-                            <buildArgs>-J-Xmx4G -H:+TraceClassInitialization -H:+ReportExceptionStackTraces
-                                -Dspring.graal.remove-unused-autoconfig=true -Dspring.graal.remove-yaml-support=true
-                            </buildArgs>
+                            <buildArgs>-Dspring.graal.mode=initialization-only -Dspring.graal.dump-config=/tmp/computed-reflect-config.json -Dspring.graal.verbose=true -Dspring.graal.skip-logback=true -H:TraceClassInitialization=true --no-fallback --allow-incomplete-classpath --report-unsupported-elements-at-runtime -H:+ReportExceptionStackTraces --no-server --initialize-at-run-time=io.netty.channel.unix.Socket --initialize-at-run-time=io.netty.channel.unix.IovArray --initialize-at-run-time=io.netty.channel.epoll.EpollEventLoop --initialize-at-run-time=io.netty.channel.unix.Errors --initialize-at-run-time=io.netty.util.NetUtil --initialize-at-run-time=io.netty.channel.unix.Socket --initialize-at-run-time=io.netty.channel.DefaultFileRegion--initialize-at-run-time=io.netty.channel.epoll.LinuxSocket</buildArgs>
                             <imageName>${project.artifactId}</imageName>
                         </configuration>
                         <executions>
@@ -146,37 +144,5 @@
             </build>
         </profile>
     </profiles>
-
-    <!--profiles>
-        <profile>
-            <id>graal</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.graalvm.nativeimage</groupId>
-                        <artifactId>native-image-maven-plugin</artifactId>
-                        <version>21.0.0.2</version>
-                        <configuration>
-                            <buildArgs>
-                                -Dspring.graal.mode=initialization-only -Dspring.graal.dump-config=/tmp/computed-reflect-config.json -Dspring.graal.verbose=true -Dspring.graal.skip-logback=true -initialize-at-run-time=org.springframework.data.r2dbc.connectionfactory.ConnectionFactoryUtils --initialize-at-build-time=io.r2dbc.spi.IsolationLevel,io.r2dbc.spi --initialize-at-build-time=io.r2dbc.spi.ConstantPool,io.r2dbc.spi.Assert,io.r2dbc.spi.ValidationDepth --initialize-at-build-time=org.springframework.data.r2dbc.connectionfactory -H:+TraceClassInitialization --no-fallback --allow-incomplete-classpath --report-unsupported-elements-at-runtime -H:+ReportExceptionStackTraces --no-server --initialize-at-build-time=org.reactivestreams.Publisher --initialize-at-build-time=com.example.reactive.ReservationRepository --initialize-at-run-time=io.netty.channel.unix.Socket --initialize-at-run-time=io.netty.channel.unix.IovArray --initialize-at-run-time=io.netty.channel.epoll.EpollEventLoop --initialize-at-run-time=io.netty.channel.unix.Errors
-                            </buildArgs>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>native-image</goal>
-                                </goals>
-                                <phase>package</phase>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-maven-plugin</artifactId>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles-->
-
+    
 </project>
