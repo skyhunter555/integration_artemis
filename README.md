@@ -26,3 +26,182 @@ java -jar integration-artemis-1.0.0.jar
 
 ## Build
 mvn clean install
+
+errors
+
+OS name: "linux", version: "4.18.0-240.15.1.el8_3.x86_64", arch: "amd64"
+mvn -version
+Apache Maven 3.6.3 (cecedd343002696d0abb50b32b541b8a6ba2883f)
+Maven home: /opt/maven/apache-maven-3.6.3
+
+Java version: 1.8.0_282, vendor: GraalVM Community, runtime: /home/skyhunter/.sdkman/candidates/java/21.0.0.r8-grl/jre
+Default locale: en_US, platform encoding: UTF-8
+OS name: "linux", version: "4.18.0-240.15.1.el8_3.x86_64", arch: "amd64", family: "unix"
+[skyhunter@localhost reactive]$ java -version
+openjdk version "1.8.0_282"
+OpenJDK Runtime Environment (build 1.8.0_282-b07)
+OpenJDK 64-Bit Ser
+
+
+
+
+export PATH=/home/skyhunter/Downloads/graalvm-ce-java8-21.0.0.2/bin:$PATH
+
+export JAVA_HOME=/home/skyhunter/Downloads/graalvm-ce-java8-21.0.0.2
+
+gu install native-image
+
+export M2_HOME=/home/skyhunter/Downloads/apache-maven-3.6.3
+export M2=$M2_HOME/bin
+export PATH=$M2:$PATH
+
+
+export M2_HOME=/opt/maven/apache-maven-3.6.3
+export M2=$M2_HOME/bin
+export PATH=$M2:$PATH
+
+sudo subscription-manager register
+subscription-manager attach --auto
+sudo yum update
+sudo yum install java-1.8.0-openjdk-devel
+
+sudo groupadd artemis
+sudo useradd -s /bin/false -g artemis -d /opt/artemis artemis
+cd /opt
+sudo wget https://archive.apache.org/dist/activemq/activemq-artemis/2.16.0/apache-artemis-2.16.0-bin.tar.gz
+sudo tar -xvzf apache-artemis-2.16.0-bin.tar.gz
+sudo mv apache-artemis-2.16.0 artemis
+sudo chown -R artemis: artemis
+sudo chmod o+x /opt/artemis/apache-artemis-2.16.0/bin/
+sudo /opt/artemis/apache-artemis-2.16.0/bin/artemis create test-broker
+
+sudo /var/lib/test-broker/bin/artemis run
+
+***********************************************************
+
+-Dspring.graal.mode=initialization-only 
+-Dspring.graal.dump-config=/tmp/computed-reflect-config.json 
+-Dspring.graal.verbose=true 
+-Dspring.graal.skip-logback=true 
+-initialize-at-run-time=org.springframework.data.r2dbc.connectionfactory.ConnectionFactoryUtils 
+--initialize-at-build-time=io.r2dbc.spi.IsolationLevel,io.r2dbc.spi 
+--initialize-at-build-time=io.r2dbc.spi.ConstantPool,
+io.r2dbc.spi.Assert,
+io.r2dbc.spi.ValidationDepth 
+
+--initialize-at-build-time=org.springframework.data.r2dbc.connectionfactory 
+-H:+TraceClassInitialization 
+--no-fallback 
+--allow-incomplete-classpath 
+--report-unsupported-elements-at-runtime 
+-H:+ReportExceptionStackTraces 
+--no-server 
+--initialize-at-build-time=org.reactivestreams.Publisher 
+--initialize-at-build-time=com.example.reactive.ReservationRepository 
+--initialize-at-run-time=io.netty.channel.unix.Socket 
+--initialize-at-run-time=io.netty.channel.unix.IovArray 
+--initialize-at-run-time=io.netty.channel.epoll.EpollEventLoop 
+--initialize-at-run-time=io.netty.channel.unix.Errors
+
+*******************************************************
+
+mvn clean install
+mvn -DskipTests=true clean package
+export MI=src/main/resources/META-INF
+mkdir -p $MI 
+
+java -agentlib:native-image-agent=config-output-dir=${MI}/native-image -jar target/integration-artemis-1.0.0.jar
+
+tree $MI
+mvn -Pnative clean package
+
+
+
+Error: Non-boolean option 'TraceClassInitialization' can not use +/- prefix. Use 'TraceClassInitialization=<value>' format
+Error: Use -H:+ReportExceptionStackTraces to print stacktrace of underlying exception
+Error: Image build request failed with exit status 1
+
+
+
+
+Error: Default native-compiler executable 'gcc' not found via environment variable PATH
+Error: To prevent native-toolchain checking provide command-line option -H:-CheckToolchain
+com.oracle.svm.core.util.UserError$UserException: Default native-compiler executable 'gcc' not found via environment variable PATH
+To prevent native-toolchain checking provide command-line option -H:-CheckToolchain
+	at com.oracle.svm.core.util.UserError.abort(UserError.java:139)
+	at com.oracle.svm.hosted.c.codegen.CCompilerInvoker.addSkipCheckingInfo(CCompilerInvoker.java:104)
+	at com.oracle.svm.hosted.c.codegen.CCompilerInvoker.<init>(CCompilerInvoker.java:72)
+	at com.oracle.svm.hosted.c.codegen.CCompilerInvoker$LinuxCCompilerInvoker.<init>(CCompilerInvoker.java:205)
+	at com.oracle.svm.hosted.c.codegen.CCompilerInvoker.create(CCompilerInvoker.java:80)
+	at com.oracle.svm.hosted.NativeImageGenerator.setupNativeImage(NativeImageGenerator.java:877)
+	at com.oracle.svm.hosted.NativeImageGenerator.doRun(NativeImageGenerator.java:561)
+	at com.oracle.svm.hosted.NativeImageGenerator.lambda$run$0(NativeImageGenerator.java:476)
+	at java.util.concurrent.ForkJoinTask$AdaptedRunnableAction.exec(ForkJoinTask.java:1386)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:175)
+Error: Image build request failed with exit status 1
+
+
+
+
+
+no netty_transport_native_epoll_x86_64 in java.library.path
+
+
+
+WARNING: Could not resolve org.springframework.boot.loader.LaunchedURLClassLoader for reflection configuration. Reason: java.lang.ClassNotFoundException: org.springframework.boot.loader.LaunchedURLClassLoader.
+WARNING: Could not resolve org.springframework.boot.validation.beanvalidation.MethodValidationExcludeFilter$$Lambda$273/1295226194 for reflection configuration. Reason: java.lang.ClassNotFoundException: org.springframework.boot.validation.beanvalidation.MethodValidationExcludeFilter$$Lambda$273/1295226194.
+WARNING: Could not resolve org.springframework.cglib.core.MethodWrapper$MethodWrapperKey$$KeyFactoryByCGLIB$$552be97a for reflection configuration. Reason: java.lang.ClassNotFoundException: org.springframework.cglib.core.MethodWrapper$MethodWrapperKey$$KeyFactoryByCGLIB$$552be97a.
+WARNING: Could not resolve org.springframework.cglib.proxy.Enhancer$EnhancerKey$$KeyFactoryByCGLIB$$4ce19e8f for reflection configuration. Reason: java.lang.ClassNotFoundException: org.springframework.cglib.proxy.Enhancer$EnhancerKey$$KeyFactoryByCGLIB$$4ce19e8f.
+WARNING: Could not resolve ru.syntez.integration.artemis.IntegrationArtemisMain$$EnhancerBySpringCGLIB$$a177646c for reflection configuration. Reason: java.lang.ClassNotFoundException: ru.syntez.integration.artemis.IntegrationArtemisMain$$EnhancerBySpringCGLIB$$a177646c.
+WARNING: Could not resolve ru.syntez.integration.artemis.config.JmsConfig$$EnhancerBySpringCGLIB$$d9750b18 for reflection configuration. Reason: java.lang.ClassNotFoundException: ru.syntez.integration.artemis.config.JmsConfig$$EnhancerBySpringCGLIB$$d9750b18.
+WARNING: Could not resolve ru.syntez.integration.artemis.config.JmsConfig$$EnhancerBySpringCGLIB$$d9750b18$$FastClassBySpringCGLIB$$a795378a for reflection configuration. Reason: java.lang.ClassNotFoundException: ru.syntez.integration.artemis.config.JmsConfig$$EnhancerBySpringCGLIB$$d9750b18$$FastClassBySpringCGLIB$$a795378a.
+WARNING: Could not resolve ru.syntez.integration.artemis.config.JmsConfig$$FastClassBySpringCGLIB$$2340785b for reflection configuration. Reason: java.lang.ClassNotFoundException: ru.syntez.integration.artemis.config.JmsConfig$$FastClassBySpringCGLIB$$2340785b.
+
+
+
+
+--initialize-at-run-time=io.netty.util.NetUtil
+--initialize-at-run-time=io.netty.channel.unix.Socket
+--initialize-at-run-time=io.netty.channel.DefaultFileRegion
+--initialize-at-run-time=io.netty.channel.epoll.LinuxSocket
+--initialize-at-run-time=io.netty.util.AbstractReferenceCounted
+
+Error: Classes that should be initialized at run time got initialized during image building:
+ io.netty.channel.epoll.LinuxSocket the class was requested to be initialized at run time (subtype of io.netty.channel.unix.Socket and from the command line). To see why io.netty.channel.epoll.LinuxSocket got initialized use --trace-class-initialization=io.netty.channel.epoll.LinuxSocket
+io.netty.util.NetUtil the class was requested to be initialized at run time (from the command line and from feature org.springframework.graal.support.InitializationHandler.lambda$register$0). To see why io.netty.util.NetUtil got initialized use --trace-class-initialization=io.netty.util.NetUtil
+io.netty.util.AbstractReferenceCounted the class was requested to be initialized at run time (from the command line). To see why io.netty.util.AbstractReferenceCounted got initialized use --trace-class-initialization=io.netty.util.AbstractReferenceCounted
+io.netty.channel.unix.Socket the class was requested to be initialized at run time (from the command line). To see why io.netty.channel.unix.Socket got initialized use --trace-class-initialization=io.netty.channel.unix.Socket
+io.netty.channel.DefaultFileRegion the class was requested to be initialized at run time (subtype of io.netty.util.AbstractReferenceCounted and from the command line). To see why io.netty.channel.DefaultFileRegion got initialized use --trace-class-initialization=io.netty.channel.DefaultFileRegion
+
+com.oracle.svm.core.util.UserError$UserException: Classes that should be initialized at run time got initialized during image building:
+ io.netty.channel.epoll.LinuxSocket the class was requested to be initialized at run time (subtype of io.netty.channel.unix.Socket and from the command line). To see why io.netty.channel.epoll.LinuxSocket got initialized use --trace-class-initialization=io.netty.channel.epoll.LinuxSocket
+io.netty.util.NetUtil the class was requested to be initialized at run time (from the command line and from feature org.springframework.graal.support.InitializationHandler.lambda$register$0). To see why io.netty.util.NetUtil got initialized use --trace-class-initialization=io.netty.util.NetUtil
+io.netty.util.AbstractReferenceCounted the class was requested to be initialized at run time (from the command line). To see why io.netty.util.AbstractReferenceCounted got initialized use --trace-class-initialization=io.netty.util.AbstractReferenceCounted
+io.netty.channel.unix.Socket the class was requested to be initialized at run time (from the command line). To see why io.netty.channel.unix.Socket got initialized use --trace-class-initialization=io.netty.channel.unix.Socket
+io.netty.channel.DefaultFileRegion the class was requested to be initialized at run time (subtype of io.netty.util.AbstractReferenceCounted and from the command line). To see why io.netty.channel.DefaultFileRegion got initialized use --trace-class-initialization=io.netty.channel.DefaultFileRegion
+
+	at com.oracle.svm.core.util.UserError.abort(UserError.java:68)
+	at com.oracle.svm.hosted.classinitialization.ConfigurableClassInitialization.checkDelayedInitialization(ConfigurableClassInitialization.java:539)
+	at com.oracle.svm.hosted.classinitialization.ClassInitializationFeature.duringAnalysis(ClassInitializationFeature.java:226)
+	at com.oracle.svm.hosted.NativeImageGenerator.lambda$runPointsToAnalysis$8(NativeImageGenerator.java:740)
+	at com.oracle.svm.hosted.FeatureHandler.forEachFeature(FeatureHandler.java:70)
+	at com.oracle.svm.hosted.NativeImageGenerator.runPointsToAnalysis(NativeImageGenerator.java:740)
+	at com.oracle.svm.hosted.NativeImageGenerator.doRun(NativeImageGenerator.java:563)
+	at com.oracle.svm.hosted.NativeImageGenerator.lambda$run$0(NativeImageGenerator.java:476)
+	at java.util.concurrent.ForkJoinTask$AdaptedRunnableAction.exec(ForkJoinTask.java:1386)
+	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)
+	at java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)
+	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)
+	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:175)
+
+
+
+
+
+Error: Error compiling query code (in /tmp/SVM-5314415146569099431/AArch64LibCHelperDirectives.c). Compiler command '/usr/bin/gcc -Wall -Werror -o /tmp/SVM-5314415146569099431/AArch64LibCHelperDirectives /tmp/SVM-5314415146569099431/AArch64LibCHelperDirectives.c ' output included error: /tmp/SVM-5314415146569099431/AArch64LibCHelperDirectives.c:8:5: error: implicit declaration of function ‘printf’ [-Werror=implicit-function-declaration]
+
+
+
